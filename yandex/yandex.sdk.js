@@ -6,13 +6,13 @@ var leaderboards = null;
 var rtbBannersData =
     {
         mobileBanners: [
-            { id: "R-A-1621043-28", position: "Bottom" },
-{ id: "R-A-1621043-30", position: "Fullscreen" },
+            {id: "R-A-1621043-28", position: "Bottom"},
+{id: "R-A-1621043-30", position: "Fullscreen"}
 
         ],
         desktopBanners: [
-            { id: "R-A-1621043-29", position: "Bottom" },
-{ id: "R-A-1621043-31", position: "Center" },
+            {id: "R-A-1621043-29", position: "Bottom"},
+{id: "R-A-1621043-31", position: "Center"}
 
         ]
     };

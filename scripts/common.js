@@ -76,6 +76,18 @@ function GetLoadingScreenLocalization()
     return translated;
 }
 
+// From iframe parent
+function SuccessMessageRequest(request)
+{
+    SendSuccessMessage(request.request, request.message);
+}
+
+function FailedMessageRequest(request)
+{
+    SendFailedMessage(request.request, request.message);
+}
+
+// Remote Configs
 function SendSuccessMessage(request, parameters)
 {
     if(request == null) return;
