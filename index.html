@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    [RTB_BLOCK_PRELOADER]
+
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    
+    <link rel="stylesheet" href="ad.css" />
+    <link rel="stylesheet" href="Template/loader.style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="displayheight" content="31, 60, 90, 125, 250, 400, 600"/>
+
+    <title>ShotRace</title>
+
+    <script src="scripts/extensions.js"></script>
+    <script src="scripts/common.js"></script>
+    <script src="Template/UnityProgress.js"></script>
+    [REPLACE_HEAD_LOAD_SKD_SCRIPTS]
+    
+    <script>
+      window.alert = console.log;
+      var unityInstance = null;
+    </script>
+  </head>
+  <body style="background-color: #0B0B0BFF;">
+    <div id="unity-container" style="position: absolute; width: 100%; height: 100%; left: 0px;  top: 0px;">
+      <canvas id="unity-canvas" style="position: absolute; width: 100%; height: 100%; left: 0px;  top: 0px;"></canvas>
+    </div>
+    [REPLACE_FULLSCREEN_RTB_BLOCK]
+    [REPLACE_CENTER_RTB_BLOCK]
+    [REPLACE_BOTTOM_RTB_BLOCK]
+    <div id="loader">
+      <div id="loader-area">
+        <span id="loader-area__label" style="color: #FFE98FFF"></span>
+      </div>
+      <div id=loader-progress style="background-color: #D9B303FF;">
+        <div id="loader-progress__filled" style="background-color: #FFE98FFF;"></div>
+      </div>
+    </div>
+    <script>
+      const buildUrl = "Build";
+      const config = {
+        dataUrl: buildUrl + "/Source.data.unityweb",
+        frameworkUrl: buildUrl + "/Source.framework.js.unityweb",
+        codeUrl: buildUrl + "/Source.wasm.unityweb",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "SoPartyGames",
+        productName: "ShotRace",
+        productVersion: "0.2",
+      };
+
+      const container = document.querySelector("#unity-container");
+      const canvas = document.querySelector("#unity-canvas");
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        IsMobilePlatform = true;
+        environment.deviceInfo.isMobile = true;
+        
+        container.className = "unity-mobile";
+        config.devicePixelRatio = 1;
+      }
+
+      const script = document.createElement("script");
+      const loaderUrl = buildUrl + "/Source.loader.js";
+
+      UnityProgress(0);
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => UnityProgress(progress))
+                .then((uInstance) => unityInstance = uInstance)
+                .catch((message) => console.log(message));
+      };
+      document.body.appendChild(script);
+    </script>
+    <script src="yandex/yandex.sdk.js"></script> <script src="yandex/iframe.messages.js"></script>
+    [REPLACE_VK_ADS_LOADER_BANNER]
+    [REPLACE_YANDEX_ADS_LOADER_BANNER]
+    [REPLACE_MOBILE_CONSOLE_BODY]
+  </body>
+</html>
