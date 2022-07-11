@@ -186,6 +186,15 @@ function CacheEnvironmentData(data)
     yandexEnvironmentData = data;
 }
 
+function InitializeSkd()
+{
+    var param = {
+        isMobile: IsMobilePlatform
+    };
+    SendEventMessage('Initialize', param);
+}
+
+InitializeSkd();
 GetLanguageCode();
 GetEnvironmentJson();
 
