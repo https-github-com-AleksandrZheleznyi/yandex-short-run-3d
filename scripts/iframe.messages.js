@@ -10,6 +10,7 @@ else if (window.attachEvent)
 
 function onMessage(event)
 {
+    console.log('OnMessage from Web Scripts: '+ data.func);
     var data = event.data;
 
     if (typeof(window[data.func]) == "function")
