@@ -165,8 +165,6 @@ function GetEnvironmentJson()
         environment.payload = yandexEnvironmentData.environment.payload;
 
     environment.screen.isFullscreen = yandexEnvironmentData.screen.fullscreen;
-    // environment.screen.orientation.value = yandexEnvironmentData.screen.orientation.value;
-    // environment.screen.orientation.isLock = yandexEnvironmentData.screen.orientation.lock;
 
     environment.deviceInfo.isTv = yandexEnvironmentData.deviceInfo.isTv;
     environment.deviceInfo.isTable = yandexEnvironmentData.deviceInfo.isTable;
@@ -194,12 +192,12 @@ function InitializeSkd()
     SendEventMessage('Initialize', param);
 }
 
-document.addEventListener('DOMContentLoaded', (event) =>
+document.onload = function() 
 {
     console.log('--DOM fully loaded and parsed');
     GetEnvironmentJson();
     SendEventMessage('LoadBanners', rtbBannersData);
-});
+}
 
 InitializeSkd();
 GetLanguageCode();
