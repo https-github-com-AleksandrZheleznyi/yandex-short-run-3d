@@ -192,11 +192,11 @@ function InitializeSkd()
     SendEventMessage('Initialize', param);
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+document.onload = function()
+{
     SendEventMessage('LoadBanners', rtbBannersData);
     GetEnvironmentJson();
-});
+}
 
 InitializeSkd();
 GetLanguageCode();
-

@@ -1,15 +1,12 @@
 // Event system
-
-document.addEventListener("DOMContentLoaded", function() {
-    if (window.addEventListener)
-    {
-        window.addEventListener("message", onMessage, false);
-    }
-    else if (window.attachEvent)
-    {
-        window.attachEvent("onmessage", onMessage, false);
-    }
-});
+if (window.addEventListener)
+{
+    window.addEventListener("message", onMessage, false);
+}
+else if (window.attachEvent)
+{
+    window.attachEvent("onmessage", onMessage, false);
+}
 
 function onMessage(event)
 {
