@@ -165,8 +165,8 @@ function GetEnvironmentJson()
         environment.payload = yandexEnvironmentData.environment.payload;
 
     environment.screen.isFullscreen = yandexEnvironmentData.screen.fullscreen;
-    environment.screen.orientation.value = yandexEnvironmentData.screen.orientation.value;
-    environment.screen.orientation.isLock = yandexEnvironmentData.screen.orientation.lock;
+    // environment.screen.orientation.value = yandexEnvironmentData.screen.orientation.value;
+    // environment.screen.orientation.isLock = yandexEnvironmentData.screen.orientation.lock;
 
     environment.deviceInfo.isTv = yandexEnvironmentData.deviceInfo.isTv;
     environment.deviceInfo.isTable = yandexEnvironmentData.deviceInfo.isTable;
