@@ -1,7 +1,7 @@
 var IsMobilePlatform = false;
 
 let cachedConfigFile = null;
-let configUrl = 'https://spgames.s3.ap-south-1.amazonaws.com/short-run-3d/yandex/0.2/RemoteConfig.json';
+let configUrl = 'https://spgames.s3.ap-south-1.amazonaws.com/sdk-test-config/yandex/0.1/RemoteConfig.json';
 var showedRewardVideo = false;
 var environment = {
     appId: "",
@@ -76,18 +76,6 @@ function GetLoadingScreenLocalization()
     return translated;
 }
 
-// From iframe parent
-function SuccessMessageRequest(request)
-{
-    SendSuccessMessage(request.request, request.message);
-}
-
-function FailedMessageRequest(request)
-{
-    SendFailedMessage(request.request, request.message);
-}
-
-// Remote Configs
 function SendSuccessMessage(request, parameters)
 {
     if(request == null) return;

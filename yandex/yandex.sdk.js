@@ -1,198 +1,524 @@
+const enums = {
+    BANNER_POS: {
+        Top: 'Top',
+        Bottom: 'Bottom',
+        Left: 'Left',
+        Right: 'Right',
+        Center: 'Center',
+        Fullscreen: 'Fullscreen'
+    },
+    MESSAGES : {
+        NotInitPurchases: 'Purchases uninitialized!',
+        UserNotLogged: 'The user is not logged in',
+        LeaderboardsNotInit: 'Leaderboards not initialized'
+    }
+}
+
 var sdk = null;
 var player = null;
 var payments = null;
 var locStorage = null;
 var leaderboards = null;
-var rtbBannersData =
+
+function StartPage()
+{
+    for(var key in enums.BANNER_POS)
     {
-        mobileBanners: [
-            {id: "R-A-1621043-28", position: "Bottom"},
-{id: "R-A-1621043-30", position: "Fullscreen"}
+        try
+        {
+            document.getElementById(enums.BANNER_POS[key]).style.display='none';
+        }
+        catch (error) { }
+    }
+}
 
-        ],
-        desktopBanners: [
-            {id: "R-A-1621043-29", position: "Bottom"},
-{id: "R-A-1621043-31", position: "Center"}
-
-        ]
-    };
+// Init Yandex SKD
+function InitializeYandexGamesSdk()
+{
+    YaGames.init({
+        adv: {
+            onAdvClose: wasShown => {
+                console.info('adv closed!');
+            }
+        }
+    }).then(ysdk => {
+        sdk = ysdk;
+        YandexShowFullscrenAd();
+    });
+}
 
 // User Authorization
 function YandexAuthorizationUser(request)
 {
-    SendEventMessage('AuthorizationUser', request);
+    sdk.getPlayer({ scopes: JSON.parse(request.jsonData.toLowerCase()) }).then(_player =>
+    {
+        player = _player;
+        SendSuccessMessage(request);
+    }).catch(err =>
+    {
+        player = null;
+        SendFailedMessage(request, JSON.stringify(err));
+    });
 }
 
 function YandexShowAuthorizationDialog(request)
 {
-    SendEventMessage('ShowAuthorizationDialog', request);
+    sdk.auth.openAuthDialog().then(() =>
+    {
+        SendSuccessMessage(request);
+    }).catch(() =>
+    {
+        SendFailedMessage(request, 'Player is not authorized.');
+    });
 }
 
 // Purchases
 function YandexInitializePurchases(request)
 {
-    SendEventMessage('InitializePurchases', request);
+    sdk.getPayments({ signed: request.jsonData }).then(_payments =>
+    {
+        payments = _payments;
+        SendSuccessMessage(request);
+    }).catch(err =>
+    {
+        SendFailedMessage(request, err);
+    });
 }
 
 function YandexPurchase(request)
 {
-    SendEventMessage('Purchase', request);
+    if(payments == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.NotInitPurchases);
+        return;
+    }
+    payments.purchase({ id: request.jsonData }).then(purchase =>
+    {
+        SendSuccessMessage(request);
+    }).catch(err =>
+    {
+        SendFailedMessage(request, err);
+    })
 }
 
 function YandexGetPurchasedProducts(request)
 {
-    SendEventMessage('GetPurchasedProducts', request);
+    if(payments == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.NotInitPurchases);
+        return;
+    }
+    payments.getPurchases().then(purchases =>
+    {
+        SendSuccessMessage(request,  JSON.stringify({ products: purchases }));
+    }).catch(err =>
+    {
+        SendFailedMessage(request, err);
+    })
 }
 
 function YandexGetPurchaseCatalog(request)
 {
-    SendEventMessage('GetPurchaseCatalog', request);
+    if(payments == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.NotInitPurchases);
+        return;
+    }
+    payments.getCatalog().then(products =>
+    {
+        SendSuccessMessage(request,  JSON.stringify({ products: products }));
+    }).catch(err =>
+    {
+        SendFailedMessage(request, err);
+    });
 }
 
 
 // Ads
 function YandexShowInterstitialAd(request)
 {
-    SendEventMessage('ShowFullscreenAd', request);
+    var requestData = JSON.parse(request.jsonData);
+    if(requestData._id == 'yandex_interstitial_block')
+        YandexShowFullscrenAd();
+
+    var render = IsMobilePlatform ? enums.BANNER_POS.Fullscreen : enums.BANNER_POS.Center;
+    setElementByIdStyleType(render, 'block');
+    SendSuccessMessage(request);
 }
 
 function YandexHideInterstitialAd(request)
 {
-    SendEventMessage('HideInterstitialAd', request);
+    var render = IsMobilePlatform ? enums.BANNER_POS.Fullscreen : enums.BANNER_POS.Center;
+    setElementByIdStyleType(render, 'none');
+    SendSuccessMessage(request);
 }
 
 let rewardRequest = null;
 function YandexShowRewardVideo(request)
 {
-    SendEventMessage('ShowRewardVideo', request);
+    if(rewardRequest != null || showedRewardVideo == true)
+    {
+        console.log('-It is not possible to show the video ad block for the reward yet, since it is already being shown.');
+        return;
+    }
+
+    rewardRequest = request;
+    sdk.adv.showRewardedVideo({
+        callbacks: { onOpen: () =>
+            {
+                showedRewardVideo = true;
+            },
+            onRewarded: () =>
+            {
+                SendSuccessMessage(rewardRequest);
+            },
+            onClose: () => {
+                SendClosedMessage(rewardRequest);
+                showedRewardVideo = false;
+                rewardRequest = null;
+            },
+            onError: (err) => {
+                var errorMessage = '-Reward video: failed show reward video. ' + err;
+                SendFailedMessage(rewardRequest, errorMessage);
+
+                showedRewardVideo = false;
+                rewardRequest = null;
+            }
+        }
+    })
 }
 
 function YandexShowFullscrenAd()
 {
-    SendEventMessage('ShowFullscreenAd');
+    sdk.adv.showFullscreenAdv({
+        callbacks: {
+            onClose: function(wasShown)
+            {
+                console.log('-Closed Yandex fullscreen ad. Was showed: '+wasShown)
+            },
+            onError: function(err)
+            {
+                console.log('-Failed show Yandex fullscreen ad: '+err)
+            }
+        }
+    })
 }
 
 function YandexShowBanner(request)
 {
-    SendEventMessage('ShowBanner', request);
+    if(request == null)
+    {
+        SendFailedMessage(request, '-Failed show banner block. Request equal of null.');
+        return;
+    }
+
+    var banner = JSON.parse(request.jsonData);
+    if(banner == null)
+    {
+        SendFailedMessage(request, '-Failed show banner block. BannerData equal of null.');
+        return;
+    }
+
+    setElementByIdStyleType(banner._position, 'block');
+    SendSuccessMessage(request);
 }
 
 function YandexHideBanner(request)
 {
-    SendEventMessage('HideBanner', request);
+    if(request == null)
+    {
+        SendFailedMessage(request, '-Failed show banner block. Request equal of null.');
+        return;
+    }
+
+    var banner = JSON.parse(request.jsonData);
+    if(banner == null)
+    {
+        SendFailedMessage(request, '-Failed show banner block. BannerData equal of null.');
+        return;
+    }
+
+    setElementByIdStyleType(banner._position, 'none');
+    SendSuccessMessage(request);
 }
 
 // Storage
 function YandexGetData(request)
 {
-    SendEventMessage('GetData', request);
+    if(player == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.UserNotLogged);
+        return;
+    }
+    var requestData = JSON.parse(request.jsonData);
+    player.getData(requestData.keys).then(data =>
+    {
+        var result = GetKeysValuesArrays(data);
+        SendSuccessMessage(request, JSON.stringify(result));
+    }).catch(err =>
+    {
+        SendFailedMessage(request, err);
+    });
 }
 
 function YandexSetData(request)
 {
-    SendEventMessage('SetData', request);
+    if(player == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.UserNotLogged);
+        return;
+    }
+    var data = KeysValuesToObject(JSON.parse(request.jsonData));
+    player.setData(data).then(() => //(data, true)
+    {
+        SendSuccessMessage(request);
+    }).catch(err =>
+    {
+        SendFailedMessage(request, err);
+    });
 }
 
 function YandexSetStats(request)
 {
-    SendEventMessage('SetStats', request);
+    if(player == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.UserNotLogged);
+        return;
+    }
+    var stats = KeysValuesToObject(JSON.parse(request.jsonData));
+    player.setStats(stats).then(() =>
+    {
+        SendSuccessMessage(request);
+    }).catch(err =>
+    {
+        SendFailedMessage(request, err);
+    });
 }
 
 function YandexGetStats(request)
 {
-    SendEventMessage('GetStats', request);
+    if(player == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.UserNotLogged);
+        return;
+    }
+    var requestData = JSON.parse(request.jsonData);
+    player.getStats(requestData.keys).then(stats =>
+    {
+        var result = GetKeysValuesArrays(stats);
+        SendSuccessMessage(request, JSON.stringify(result));
+    }).catch(err =>
+    {
+        SendFailedMessage(request, err);
+    });
 }
 
 function YandexIncrementStats(request)
 {
-    SendEventMessage('IncrementStats', request);
+    if(player == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.UserNotLogged);
+        return;
+    }
+    var increments = KeysValuesToObject(JSON.parse(request.jsonData));
+    player.incrementStats(increments).then(() =>
+    {
+        SendSuccessMessage(request);
+    }).catch(err =>
+    {
+        SendFailedMessage(request, err);
+    });
+}
+
+function KeysValuesToObject(keyPairs)
+{
+    var stats = {};
+    for(var i = 0 ; i < keyPairs.keys.length; i++)
+        stats[keyPairs.keys[i]] = keyPairs.values[i];
+    return stats;
+}
+
+function GetKeysValuesArrays(obj)
+{
+    var keys = [];
+    var values = [];
+    for(var key in obj)
+        if(obj.hasOwnProperty(key))
+        {
+            keys.push(key);
+            values.push(obj[key]);
+        }
+    return {
+        keys: keys,
+        values: values
+    }
 }
 
 
 // Leaderboards
 function YandexInitializeLeaderboards(request)
 {
-    SendEventMessage('InitializeLeaderboards', request);
+    sdk.getLeaderboards().then(_lb =>
+    {
+        leaderboards = _lb;
+        SendSuccessMessage(request);
+    }).catch(err =>
+    {
+        SendFailedMessage(request, err);
+    });
 }
 
 function YandexGetLeaderboardInfo(request)
 {
-    SendEventMessage('GetLeaderboardInfo', request);
+    if(player == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.UserNotLogged);
+        return;
+    }
+    if(leaderboards == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.LeaderboardsNotInit);
+        return;
+    }
+
+    leaderboards.getLeaderboardDescription(request.jsonData).then(res =>
+    {
+        SendSuccessMessage(request, JSON.stringify(res));
+    }).catch(err =>
+    {
+        SendFailedMessage(request, err);
+    });
 }
 
 function YandexSetLeaderboardScore(request)
 {
-    SendEventMessage('SetLeaderboardScore', request);
+    if(player == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.UserNotLogged);
+        return;
+    }
+    if(leaderboards == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.LeaderboardsNotInit);
+        return;
+    }
+
+    var requestData = JSON.parse(request.jsonData);
+    if(requestData.extraData == null)
+        leaderboards.setLeaderboardScore(requestData.leaderboardName, requestData.score);
+    else
+        leaderboards.setLeaderboardScore(requestData.leaderboardName, requestData.score, requestData.extraData);
+
+    SendSuccessMessage(request);
 }
 
 function YandexLeaderboardPlayer(request)
 {
-    SendEventMessage('LeaderboardPlayer', request);
+    if(player == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.UserNotLogged);
+        return;
+    }
+    if(leaderboards == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.LeaderboardsNotInit);
+        return;
+    }
+
+    leaderboards.getLeaderboardPlayerEntry(request.jsonData).then(res =>
+    {
+        SendSuccessMessage(request, JSON.stringify(res));
+    }).catch(err =>
+    {
+        var message = err.code != null ? err.code : JSON.stringify(err);
+        SendFailedMessage(request, message);
+    });
 }
 
 function YandexGetLeaderboard(request)
 {
-    SendEventMessage('GetLeaderboard', request);
-}
-
-// TODO rewrite this item
-// Languages
-let browserLanguageCode = null;
-function GetLanguageCode()
-{
-    if(browserLanguageCode != null)
-        return browserLanguageCode;
-    SendEventMessage('CheckBrowserLanguage');
-}
-
-function CacheBrowserLanguage(languageCode)
-{
-    browserLanguageCode = languageCode;
-}
-
-// Envorinment
-let yandexEnvironmentData = null;
-function GetEnvironmentJson()
-{
-    if(yandexEnvironmentData == null)
+    if(player == null)
     {
-        SendEventMessage('CheckEnvironmentData');
+        SendFailedMessage(request, enums.MESSAGES.UserNotLogged);
+        return;
+    }
+    if(leaderboards == null)
+    {
+        SendFailedMessage(request, enums.MESSAGES.LeaderboardsNotInit);
         return;
     }
 
-    environment.appId = yandexEnvironmentData.environment.app.id;
-    if(yandexEnvironmentData.environment.payload != null)
-        environment.payload = yandexEnvironmentData.environment.payload;
+    var requestData = JSON.parse(request.jsonData);
+    leaderboards.getLeaderboardEntries(requestData.leaderboardId, requestData.parameters).then(res =>
+    {
+        SendSuccessMessage(request, JSON.stringify(res));
+    }).catch(err =>
+    {
+        SendFailedMessage(request, err);
+    });
+}
 
-    environment.screen.isFullscreen = yandexEnvironmentData.screen.fullscreen;
+// Languages
+function GetLanguageCode()
+{
+    if(enabledDefaultLanguage == true) 
+        return defaultLanguageCode;
+    if(sdk == null)
+        return "en";
+    return sdk.environment.i18n.lang;
+}
 
-    environment.deviceInfo.isTv = yandexEnvironmentData.deviceInfo.isTv;
-    environment.deviceInfo.isTable = yandexEnvironmentData.deviceInfo.isTable;
-    environment.deviceInfo.deviceType = yandexEnvironmentData.deviceInfo.type;
+// Native Ads Banner
+function RTBrefresh(blockId, render)
+{
+    console.log('-BlockId: ' + blockId + ', Render: ' + render);
+    window.yaContextCb.push(()=>{
+        Ya.Context.AdvManager.render({
+            renderTo: render,
+            blockId: blockId.replace("yandex_rtb_", "")
+        })
+    });
+}
 
-    environment.browser.languageCode = yandexEnvironmentData.environment.browser.lang;
-    environment.browser.topLevelDomain = yandexEnvironmentData.environment.i18n.tld;
+function LoadBanner()
+{
+    if(IsMobilePlatform)
+    {
+        RTBrefresh("RR-00-000", "Bottom");
+RTBrefresh("RR-00-002", "Fullscreen");
 
+    } else
+    {
+        RTBrefresh("RR-00-001", "Bottom");
+RTBrefresh("RR-00-003", "Center");
+
+    }
+}
+
+// Envorinment
+function GetEnvironmentJson()
+{
+    environment.appId = sdk.environment.app.id;
+    if(sdk.environment.payload != null)
+        environment.payload = sdk.environment.payload;
+    
+    environment.screen.isFullscreen = sdk.screen.fullscreen;
+    environment.screen.orientation.value = sdk.screen.orientation.value;
+    environment.screen.orientation.isLock = sdk.screen.orientation.lock;
+
+    environment.deviceInfo.isTv = sdk.deviceInfo.isTV();
+    environment.deviceInfo.isTable = ysdk.deviceInfo.isTablet();
+    environment.deviceInfo.deviceType = ysdk.deviceInfo.type;
+    
+    environment.browser.languageCode = sdk.environment.browser.lang;
+    environment.browser.topLevelDomain = sdk.environment.i18n.tld;
+    
     var result = JSON.stringify(environment);
-    console.log('-Environment data: ' + result);
-
+    console.log(result);
+    
     return result;
 }
 
-function CacheEnvironmentData(data)
-{
-    yandexEnvironmentData = data;
-}
-
-function InitializeSkd()
-{
-    var param = {
-        isMobile: IsMobilePlatform
-    };
-    SendEventMessage('Initialize', param);
-}
-
-InitializeSkd();
-GetLanguageCode();
-SendEventMessage('LoadBanners', rtbBannersData);
-GetEnvironmentJson();
+StartPage();
+LoadBanner();
+setInterval(LoadBanner, 30000);

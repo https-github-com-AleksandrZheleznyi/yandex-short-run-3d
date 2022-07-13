@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
-    
+    <script>window.yaContextCb=window.yaContextCb||[]</script>          <script src="https://yandex.ru/ads/system/context.js" async></script>     <!-- Yandex Games SDK -->     <script>       (function(d) {           var t = d.getElementsByTagName('script')[0];           var s = d.createElement('script');           s.src = 'https://yandex.ru/games/sdk/v2';           s.async = true;           t.parentNode.insertBefore(s, t);           s.onload = InititalizeYaSDK;       })(document);        function InititalizeYaSDK()       {           InitializeYandexGamesSdk();       }     </script>
 
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -11,14 +11,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="displayheight" content="31, 60, 90, 125, 250, 400, 600"/>
 
-    <title>ShotRace</title>
-
-    <script src="scripts/iframe.messages.js"></script>
+    <title>web-build-helper</title>
+    
     <script src="scripts/extensions.js"></script>
     <script src="scripts/common.js"></script>
     <script src="Template/UnityProgress.js"></script>
     
-    
+
     <script>
       window.alert = console.log;
       var unityInstance = null;
@@ -28,15 +27,13 @@
     <div id="unity-container" style="position: absolute; width: 100%; height: 100%; left: 0px;  top: 0px;">
       <canvas id="unity-canvas" style="position: absolute; width: 100%; height: 100%; left: 0px;  top: 0px;"></canvas>
     </div>
-    
-    
-    
+    <div id="Fullscreen" style="width:100%; max-height:65%; position:absolute; bottom: 0%; z-index: 10000; overflow: hidden; background-color: rgba(255, 255, 255, 0);"></div>
+    <div id="Center" style="width:100%; max-height:65%; position:absolute; bottom: 0%; z-index: 10000; overflow: hidden; background-color: rgba(255, 255, 255, 0);"></div>
+    <div id="Bottom" style="width:100%; max-height:20%; position:absolute; bottom: 0%; z-index: 10000; overflow: hidden; background-color: rgba(255, 255, 255, 0);"></div>
     <div id="loader">
       <div id="loader-area">
-        <span id="loader-area__label" style="color: #FFE98FFF"></span>
-      </div>
-      <div id=loader-progress style="background-color: #D9B303FF;">
-        <div id="loader-progress__filled" style="background-color: #FFE98FFF;"></div>
+          <span id="loader-area__label" style="color: #FFE98FFF"></span>
+          <span id="loader-area__percent" style="color: #FFE98FFF"></span>
       </div>
     </div>
     <script>
@@ -46,9 +43,9 @@
         frameworkUrl: buildUrl + "/Source.framework.js.unityweb",
         codeUrl: buildUrl + "/Source.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
-        companyName: "SoPartyGames",
-        productName: "ShotRace",
-        productVersion: "0.2",
+        companyName: "SoParty",
+        productName: "web-build-helper",
+        productVersion: "0.1",
       };
 
       const container = document.querySelector("#unity-container");
@@ -77,6 +74,6 @@
     <script src="yandex/yandex.sdk.js"></script>
     
     
-    <script>       (function () { var script = document.createElement('script'); script.src="//cdn.jsdelivr.net/npm/eruda"; document.body.appendChild(script); script.onload = function () { eruda.init() } })();     </script>
+    
   </body>
 </html>
