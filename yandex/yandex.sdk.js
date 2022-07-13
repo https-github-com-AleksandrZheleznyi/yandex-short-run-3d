@@ -484,13 +484,13 @@ function LoadBanner()
 {
     if(IsMobilePlatform)
     {
-        RTBrefresh("RR-00-000", "Bottom");
-RTBrefresh("RR-00-002", "Fullscreen");
+        RTBrefresh("R-A-1621043-28", "Bottom");
+RTBrefresh("R-A-1621043-30", "Fullscreen");
 
     } else
     {
-        RTBrefresh("RR-00-001", "Bottom");
-RTBrefresh("RR-00-003", "Center");
+        RTBrefresh("R-A-1621043-29", "Bottom");
+RTBrefresh("R-A-1621043-31", "Center");
 
     }
 }
