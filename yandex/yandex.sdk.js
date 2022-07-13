@@ -498,24 +498,47 @@ RTBrefresh("R-A-1621043-31", "Center");
 // Envorinment
 function GetEnvironmentJson()
 {
+    if(sdk == null)
+    {
+        console.log('--SDK is equal of null');
+        return;
+    }
+    
     environment.appId = sdk.environment.app.id;
-    if(sdk.environment.payload != null)
-        environment.payload = sdk.environment.payload;
-    
-    environment.screen.isFullscreen = sdk.screen.fullscreen;
-    // environment.screen.orientation.value = sdk.screen.orientation.value;
-    // environment.screen.orientation.isLock = sdk.screen.orientation.lock;
+    console.log('--App ID : ' + environment.appId);
+    if(sdk.environment != null)
+    {
+        if(sdk.environment.payload != null)
+            environment.payload = sdk.environment.payload;
 
-    environment.deviceInfo.isTv = sdk.deviceInfo.isTV();
-    environment.deviceInfo.isTable = ysdk.deviceInfo.isTablet();
-    environment.deviceInfo.deviceType = ysdk.deviceInfo.type;
+        if(sdk.environment.browser != null)
+            environment.browser.languageCode = sdk.environment.browser.lang;
+        
+        if(sdk.environment.i18n != null)
+            environment.browser.topLevelDomain = sdk.environment.i18n.tld;
+    }
     
-    environment.browser.languageCode = sdk.environment.browser.lang;
-    environment.browser.topLevelDomain = sdk.environment.i18n.tld;
+    if(sdk.screen != null)
+    {
+        environment.screen.isFullscreen = sdk.screen.fullscreen;
+        if(sdk.screen.orientation != null
+            && sdk.screen.orientation.value
+            && sdk.screen.orientation.lock)
+        {
+            environment.screen.orientation.value = sdk.screen.orientation.value;
+            environment.screen.orientation.isLock = sdk.screen.orientation.lock;
+        }
+    }
+
+    if(sdk.deviceInfo != null)
+    {
+        environment.deviceInfo.isTv = sdk.deviceInfo.isTV();
+        environment.deviceInfo.isTable = ysdk.deviceInfo.isTablet();
+        environment.deviceInfo.deviceType = ysdk.deviceInfo.type;
+    }
     
     var result = JSON.stringify(environment);
     console.log(result);
-    
     return result;
 }
 
