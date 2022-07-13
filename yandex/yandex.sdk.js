@@ -506,7 +506,6 @@ function GetEnvironmentJson()
     }
     
     environment.appId = sdk.environment.app.id;
-    console.log('--App ID : ' + environment.appId);
     if(sdk.environment != null)
     {
         if(sdk.environment.payload != null)
@@ -538,9 +537,7 @@ function GetEnvironmentJson()
         environment.deviceInfo.deviceType = sdk.deviceInfo.type;
     }
     
-    var result = JSON.stringify(environment);
-    console.log(result);
-    return result;
+    return  JSON.stringify(environment);
 }
 
 StartPage();
