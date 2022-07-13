@@ -43,6 +43,7 @@ function InitializeYandexGamesSdk()
         }
     }).then(ysdk => {
         sdk = ysdk;
+        console.log("Initialized Yandex SDK");
         YandexShowFullscrenAd();
     });
 }
