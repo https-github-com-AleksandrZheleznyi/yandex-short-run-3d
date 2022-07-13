@@ -533,8 +533,8 @@ function GetEnvironmentJson()
     if(sdk.deviceInfo != null)
     {
         environment.deviceInfo.isTv = sdk.deviceInfo.isTV();
-        environment.deviceInfo.isTable = ysdk.deviceInfo.isTablet();
-        environment.deviceInfo.deviceType = ysdk.deviceInfo.type;
+        environment.deviceInfo.isTable = sdk.deviceInfo.isTablet();
+        environment.deviceInfo.deviceType = sdk.deviceInfo.type;
     }
     
     var result = JSON.stringify(environment);
@@ -543,5 +543,7 @@ function GetEnvironmentJson()
 }
 
 StartPage();
+InitializeYandexGamesSdk();
+
 LoadBanner();
 setInterval(LoadBanner, 30000);
