@@ -543,7 +543,5 @@ function GetEnvironmentJson()
 }
 
 StartPage();
-InitializeYandexGamesSdk();
-
 LoadBanner();
 setInterval(LoadBanner, 30000);
