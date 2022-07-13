@@ -503,8 +503,8 @@ function GetEnvironmentJson()
         environment.payload = sdk.environment.payload;
     
     environment.screen.isFullscreen = sdk.screen.fullscreen;
-    environment.screen.orientation.value = sdk.screen.orientation.value;
-    environment.screen.orientation.isLock = sdk.screen.orientation.lock;
+    // environment.screen.orientation.value = sdk.screen.orientation.value;
+    // environment.screen.orientation.isLock = sdk.screen.orientation.lock;
 
     environment.deviceInfo.isTv = sdk.deviceInfo.isTV();
     environment.deviceInfo.isTable = ysdk.deviceInfo.isTablet();
