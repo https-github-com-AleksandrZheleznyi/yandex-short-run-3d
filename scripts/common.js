@@ -1,7 +1,7 @@
 var IsMobilePlatform = false;
 
 let cachedConfigFile = null;
-let configUrl = 'https://spgames.s3.ap-south-1.amazonaws.com/sdk-test-config/yandex/0.1/RemoteConfig.json';
+let configUrl = 'https://spgames.s3.ap-south-1.amazonaws.com/short-run-3d/yandex/0.2/RemoteConfig.json';
 var showedRewardVideo = false;
 var environment = {
     appId: "",
